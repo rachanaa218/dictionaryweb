@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenZ Dictionary 📱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        nav {
+            background: #2d3748;
+            display: flex;
+            justify-content: center;
+            padding: 0;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        nav button.active {
+            border-bottom-color: #f5576c;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-bar {
+            margin-bottom: 30px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .word-card {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #f5576c;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .word-card h3 {
+            color: #2d3748;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .word-card p {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .emoji-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .emoji-card:hover {
+            transform: scale(1.05);
+            border-color: #f5576c;
+        }
+
+        .emoji-card .emoji {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .emoji-card h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .emoji-card p {
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        .flashcard-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .flashcard {
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .flashcard-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .flashcard-back {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .flashcard-back p {
+            font-size: 1.3em;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .flashcard-controls button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-prev {
+            background: #4a5568;
+            color: white;
+        }
+
+        .btn-next {
+            background: #f5576c;
+            color: white;
+        }
+
+        .btn-prev:hover, .btn-next:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .card-counter {
+            font-size: 1.2em;
+            color: #4a5568;
+            font-weight: bold;
+        }
+
+        .hint {
+            text-align: center;
+            color: #718096;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            nav {
+                flex-direction: column;
+            }
+
+            nav button {
+                padding: 15px;
+            }
+
+            .word-grid, .emoji-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ GenZ Dictionary ✨</h1>
+            <p>Your guide to understanding the language of the internet</p>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" data-page="words">💬 Words</button>
+            <button class="nav-btn" data-page="emojis">😎 Emojis</button>
+            <button class="nav-btn" data-page="flashcards">🎴 Flashcards</button>
+        </nav>
+
+        <div class="content">
+            <!-- Words Page -->
+            <div id="words" class="page active">
+                <div class="search-bar">
+                    <input type="text" id="searchWords" placeholder="🔍 Search for a word...">
+                </div>
+                <div class="word-grid" id="wordGrid">
+                    <!-- Words will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Emojis Page -->
+            <div id="emojis" class="page">
+                <div class="search-bar">
+                    <input type="text" id="searchEmojis" placeholder="🔍 Search for an emoji meaning...">
+                </div>
+                <div class="emoji-grid" id="emojiGrid">
+                    <!-- Emojis will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Flashcards Page -->
+            <div id="flashcards" class="page">
+                <div class="flashcard-container">
+                    <div class="card-counter">
+                        <span id="currentCard">1</span> / <span id="totalCards">0</span>
+                    </div>
+                    <div class="flashcard" id="flashcard">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">
+                                <h2 id="flashcardWord">Word</h2>
+                                <p style="opacity: 0.8; margin-top: 20px;">Click to reveal meaning</p>
+                            </div>
+                            <div class="flashcard-back">
+                                <p id="flashcardMeaning">Meaning</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flashcard-controls">
+                        <button class="btn-prev" id="prevCard">← Previous</button>
+                        <button class="btn-next" id="nextCard">Next →</button>
+                    </div>
+                    <p class="hint">💡 Tip: Click the card to flip it!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GenZ Dictionary Data - 50 Words
+        const words = [
+            { word: "Slay", meaning: "To do something exceptionally well or look amazing. Example: 'You slayed that presentation!'" },
+            { word: "Bet", meaning: "An agreement or affirmation, similar to 'okay' or 'sounds good'. Example: 'Wanna grab lunch?' 'Bet!'" },
+            { word: "No cap", meaning: "No lie, for real, telling the truth. Example: 'That movie was incredible, no cap.'" },
+            { word: "Bussin'", meaning: "Really good, especially referring to food. Example: 'This pizza is bussin!'" },
+            { word: "Finna", meaning: "Short for 'fixing to' or 'going to'. Example: 'I'm finna head out.'" },
+            { word: "Periodt", meaning: "Used to emphasize a point, end of discussion. Example: 'That's the best show ever, periodt.'" },
+            { word: "Vibe check", meaning: "Assessing the mood or atmosphere. Example: 'Let's do a vibe check before we enter.'" },
+            { word: "Rent free", meaning: "When something or someone is constantly on your mind. Example: 'That song is living in my head rent free.'" },
+            { word: "Hits different", meaning: "Something that feels better or more special in a certain context. Example: 'Hot chocolate hits different in winter.'" },
+            { word: "Main character", meaning: "Acting like you're the protagonist of your own life story. Example: 'She's having her main character moment.'" },
+            { word: "Rizz", meaning: "Charisma, especially in romantic contexts. Example: 'He's got serious rizz.'" },
+            { word: "Mid", meaning: "Mediocre, average, not impressive. Example: 'That movie was mid, honestly.'" },
+            { word: "Flex", meaning: "To show off or boast. Example: 'Stop flexing your new car on Instagram.'" },
+            { word: "Sus", meaning: "Suspicious or suspect. Example: 'That excuse sounds sus to me.'" },
+            { word: "Lowkey", meaning: "Subtly or secretly. Example: 'I lowkey want to skip this meeting.'" },
+            { word: "Highkey", meaning: "Obviously or very much. Example: 'I highkey need coffee right now.'" },
+            { word: "Stan", meaning: "To be an extremely devoted fan of someone. Example: 'I stan Taylor Swift.'" },
+            { word: "Simp", meaning: "Someone who does too much for a person they like. Example: 'Stop simping over your crush.'" },
+            { word: "Clout", meaning: "Influence, fame, or social status. Example: 'He's only doing it for the clout.'" },
+            { word: "Sheesh", meaning: "An expression of amazement or disbelief. Example: 'Sheesh, that trick was insane!'" },
+            { word: "Slaps", meaning: "Something that is really good, usually music. Example: 'This new album slaps!'" },
+            { word: "Snatched", meaning: "Looking perfect or on point, especially outfit or appearance. Example: 'Your outfit is snatched today!'" },
+            { word: "Tea", meaning: "Gossip or juicy information. Example: 'Spill the tea, what happened?'" },
+            { word: "Cheugy", meaning: "Out of date, trying too hard, or not trendy. Example: 'Those skinny jeans are so cheugy.'" },
+            { word: "Drip", meaning: "Stylish or fashionable outfit/appearance. Example: 'He's got the drip today.'" },
+            { word: "Ghost", meaning: "To suddenly stop responding to someone. Example: 'He ghosted me after two dates.'" },
+            { word: "Salty", meaning: "Being upset, bitter, or annoyed. Example: 'Why are you so salty about losing?'" },
+            { word: "Savage", meaning: "Someone who is brutally honest or doesn't care what others think. Example: 'That comeback was savage!'" },
+            { word: "Fire", meaning: "Something that's really cool or awesome. Example: 'Your new haircut is fire!'" },
+            { word: "Lit", meaning: "Amazing, exciting, or fun. Example: 'That party was lit last night!'" },
+            { word: "Mood", meaning: "Relatable feeling or sentiment. Example: 'Not wanting to adult today is a whole mood.'" },
+            { word: "Extra", meaning: "Over the top, dramatic, or doing too much. Example: 'She's being so extra right now.'" },
+            { word: "Receipts", meaning: "Proof or evidence, usually screenshots. Example: 'I've got receipts to prove it.'" },
+            { word: "Shook", meaning: "Shocked, surprised, or emotionally affected. Example: 'I'm shook by that plot twist!'" },
+            { word: "Snack", meaning: "Someone who looks really attractive. Example: 'He's a whole snack.'" },
+            { word: "Basic", meaning: "Someone who follows mainstream trends without originality. Example: 'Pumpkin spice lattes are so basic.'" },
+            { word: "Finesse", meaning: "To skillfully handle or manipulate a situation. Example: 'She finessed her way into VIP.'" },
+            { word: "Hits", meaning: "Things that are popular or successful. Example: 'This playlist only has hits.'" },
+            { word: "GOAT", meaning: "Greatest Of All Time. Example: 'LeBron is the GOAT of basketball.'" },
+            { word: "Vibe", meaning: "The feeling or atmosphere of something. Example: 'I love the vibe of this cafe.'" },
+            { word: "Slap", meaning: "When something is really good. Example: 'This song slaps hard!'" },
+            { word: "Wig", meaning: "When something is so amazing it figuratively blows your wig off. Example: 'That performance? Wig!'" },
+            { word: "Living for it", meaning: "Really enjoying or loving something. Example: 'I'm living for this drama!'" },
+            { word: "It's giving", meaning: "It has the vibe or energy of something. Example: 'Your outfit is giving Paris fashion week.'" },
+            { word: "Understood the assignment", meaning: "Did exactly what was expected and exceeded it. Example: 'She understood the assignment with that speech!'" },
+            { word: "Bestie", meaning: "Best friend, can also be used ironically. Example: 'Hey bestie, we need to talk.'" },
+            { word: "Ate", meaning: "Did something exceptionally well. Example: 'She ate that performance!'" },
+            { word: "Pop off", meaning: "To go off or do something impressive. Example: 'He really popped off with that comeback!'" },
+            { word: "Secure the bag", meaning: "To get money or achieve financial success. Example: 'Time to secure the bag with this job.'" },
+            { word: "CEO of", meaning: "Being the best at something. Example: 'She's the CEO of procrastination.'" }
+        ];
+
+        // GenZ Emojis Data - 50 Emojis
+        const emojis = [
+            { emoji: "💀", name: "Skull", meaning: "Used when something is so funny you're 'dead' from laughing." },
+            { emoji: "😭", name: "Loudly crying", meaning: "Used for both actual crying or dying of laughter. Context is key!" },
+            { emoji: "✨", name: "Sparkles", meaning: "Adding emphasis or aesthetic vibes to something special or pretty." },
+            { emoji: "👁️👄👁️", name: "Eyes mouth eyes", meaning: "An expression of shock, awkwardness, or 'I'm shook'." },
+            { emoji: "🤡", name: "Clown", meaning: "Used when you or someone else has done something foolish or embarrassing." },
+            { emoji: "🧢", name: "Cap", meaning: "Represents a lie. 'No cap' means no lie, 'cap' means you're lying." },
+            { emoji: "💅", name: "Nail polish", meaning: "Confidence, sass, or indicating you're unfazed. Often used with 'slay'." },
+            { emoji: "🚩", name: "Red flag", meaning: "A warning sign about someone's behavior or a bad situation." },
+            { emoji: "😩", name: "Weary face", meaning: "Can express frustration, exhaustion, or ironically something you want badly." },
+            { emoji: "🥺", name: "Pleading face", meaning: "Begging, being cute, or asking for sympathy." },
+            { emoji: "💯", name: "Hundred points", meaning: "Keeping it real, 100% agree, or something is perfect." },
+            { emoji: "🔥", name: "Fire", meaning: "Something is hot, amazing, or trending." },
+            { emoji: "👀", name: "Eyes", meaning: "Being nosy, watching drama unfold, or 'I see you'." },
+            { emoji: "🤪", name: "Zany face", meaning: "Being goofy, silly, or acting crazy in a fun way." },
+            { emoji: "😤", name: "Face with steam", meaning: "Frustration, determination, or feeling proud/confident." },
+            { emoji: "🥴", name: "Woozy face", meaning: "Feeling drunk, confused, or experiencing something wild." },
+            { emoji: "😳", name: "Flushed face", meaning: "Embarrassed, caught off guard, or surprised." },
+            { emoji: "🤝", name: "Handshake", meaning: "Agreement, solidarity, or finding common ground." },
+            { emoji: "🫡", name: "Saluting face", meaning: "Showing respect, acknowledgment, or understanding." },
+            { emoji: "💪", name: "Flexed bicep", meaning: "Strength, accomplishment, or pumping yourself up." },
+            { emoji: "🫠", name: "Melting face", meaning: "Feeling overwhelmed, embarrassed, or dying from heat/cuteness." },
+            { emoji: "😮‍💨", name: "Face exhaling", meaning: "Relief, exhaustion, or letting go of stress." },
+            { emoji: "🙃", name: "Upside down face", meaning: "Sarcasm, awkwardness, or masking true feelings." },
+            { emoji: "😶", name: "Face without mouth", meaning: "Speechless, awkward silence, or no comment." },
+            { emoji: "🫶", name: "Heart hands", meaning: "Love, appreciation, or sending good vibes." },
+            { emoji: "💔", name: "Broken heart", meaning: "Heartbreak, disappointment, or emotional pain." },
+            { emoji: "🙄", name: "Face with rolling eyes", meaning: "Annoyance, exasperation, or 'whatever'." },
+            { emoji: "😬", name: "Grimacing face", meaning: "Awkwardness, cringe, or uncomfortable situation." },
+            { emoji: "🥹", name: "Face holding back tears", meaning: "Emotional, touched, or trying not to cry." },
+            { emoji: "🫣", name: "Face with peeking eye", meaning: "Curiosity, shyness, or can't look away from drama." },
+            { emoji: "🤷", name: "Person shrugging", meaning: "I don't know, don't care, or it is what it is." },
+            { emoji: "🤦", name: "Person facepalming", meaning: "Frustration, embarrassment, or 'I can't believe this'." },
+            { emoji: "💩", name: "Pile of poo", meaning: "Something is bad, or used humorously/playfully." },
+            { emoji: "👻", name: "Ghost", meaning: "Ghosting someone or something spooky/disappearing." },
+            { emoji: "💅🏻", name: "Nail polish (light)", meaning: "Same as 💅 but with skin tone modifier for inclusivity." },
+            { emoji: "🤨", name: "Face with raised eyebrow", meaning: "Skepticism, suspicion, or 'are you serious?'" },
+            { emoji: "😏", name: "Smirking face", meaning: "Smugness, flirtation, or knowing something others don't." },
+            { emoji: "🥱", name: "Yawning face", meaning: "Boredom, tiredness, or unimpressed." },
+            { emoji: "🫢", name: "Face with open eyes and hand over mouth", meaning: "Shock, surprise, or reacting to tea/gossip." },
+            { emoji: "🤭", name: "Face with hand over mouth", meaning: "Giggling, hiding laughter, or oops." },
+            { emoji: "😵‍💫", name: "Face with spiral eyes", meaning: "Confusion, dizziness, or mind blown." },
+            { emoji: "🥶", name: "Cold face", meaning: "Literally cold or being iced out/ignored." },
+            { emoji: "🥵", name: "Hot face", meaning: "Overheated, attracted to someone, or intense situation." },
+            { emoji: "😈", name: "Smiling face with horns", meaning: "Mischief, being naughty, or playful evil." },
+            { emoji: "👽", name: "Alien", meaning: "Feeling like an outsider or something weird/otherworldly." },
+            { emoji: "🤓", name: "Nerd face", meaning: "Being studious, geeky, or smart in a cute way." },
+            { emoji: "😎", name: "Smiling face with sunglasses", meaning: "Cool, confident, or feeling yourself." },
+            { emoji: "🤠", name: "Cowboy hat face", meaning: "Yeehaw energy, country vibes, or being adventurous." },
+            { emoji: "🫥", name: "Dotted line face", meaning: "Feeling invisible, ignored, or fading away." },
+            { emoji: "🧐", name: "Face with monocle", meaning: "Being fancy, scrutinizing, or acting sophisticated." }
+        ];
+
+        // Flashcards Data - 50 Different Words (no repeats from words section)
+        const flashcardData = [
+            { word: "Yeet", meaning: "To throw something with force or express excitement." },
+            { word: "Glow up", meaning: "A major transformation or improvement in appearance or life." },
+            { word: "Cancelled", meaning: "When someone is publicly called out and rejected for problematic behavior." },
+            { word: "Bop", meaning: "A really good song." },
+            { word: "Smol", meaning: "Small and cute." },
+            { word: "Thicc", meaning: "Curvy or full-figured in an attractive way." },
+            { word: "W", meaning: "A win or victory." },
+            { word: "L", meaning: "A loss or failure." },
+            { word: "Ratio", meaning: "When a reply gets more likes than the original post, indicating disagreement." },
+            { word: "Oof", meaning: "Expression of sympathy or reaction to something awkward/painful." },
+            { word: "Slept on", meaning: "Underrated or not getting enough attention." },
+            { word: "Pressed", meaning: "Upset, bothered, or worked up about something." },
+            { word: "Gassed", meaning: "Overly confident or hyped up." },
+            { word: "Sending me", meaning: "Something that makes you laugh uncontrollably." },
+            { word: "Big yikes", meaning: "An extreme reaction to something very bad or cringeworthy." },
+            { word: "Catch these hands", meaning: "Threatening to fight someone." },
+            { word: "No thoughts head empty", meaning: "Not thinking about anything, brain fog." },
+            { word: "Touch grass", meaning: "Go outside and experience real life instead of being online." },
+            { word: "For the plot", meaning: "Doing something risky or wild to make life more interesting." },
+            { word: "Gatekeep", meaning: "Keeping information, access, or resources from others." },
+            { word: "Gaslight", meaning: "Manipulating someone to question their own reality." },
+            { word: "Girlboss", meaning: "An ambitious woman in charge, sometimes used ironically." },
+            { word: "Normalize", meaning: "Making something common or acceptable." },
+            { word: "Unhinged", meaning: "Acting wild, chaotic, or out of control." },
+            { word: "Valid", meaning: "Legitimate, acceptable, or worthy." },
+            { word: "Dupe", meaning: "A cheaper alternative to an expensive product." },
+            { word: "Delulu", meaning: "Delusional, having unrealistic beliefs or expectations." },
+            { word: "Situationship", meaning: "A romantic relationship without clear definition or commitment." },
+            { word: "Beige flag", meaning: "A quirky or odd trait that's not good or bad, just weird." },
+            { word: "Green flag", meaning: "A positive sign in a relationship or situation." },
+            { word: "Ick", meaning: "Sudden feeling of disgust toward someone you were attracted to." },
+            { word: "Chronically online", meaning: "Someone who spends too much time on the internet." },
+            { word: "NPC", meaning: "Non-playable character - someone with no personality or original thoughts." },
+            { word: "Serve", meaning: "Delivering an excellent performance or look." },
+            { word: "Boujee", meaning: "Luxurious, fancy, or acting high-class." },
+            { word: "Hits the spot", meaning: "Exactly what was needed or wanted." },
+            { word: "Send it", meaning: "Go for it, take the risk." },
+            { word: "Big mad", meaning: "Extremely angry or upset." },
+            { word: "Slay queen", meaning: "Encouragement for someone doing amazing." },
+            { word: "Sis", meaning: "Term of endearment for a friend, regardless of gender." },
+            { word: "Ship", meaning: "Supporting a romantic relationship between two people." },
+            { word: "Fr fr", meaning: "For real for real - emphasizing truthfulness." },
+            { word: "Iykyk", meaning: "If you know, you know - insider knowledge." },
+            { word: "Ate and left no crumbs", meaning: "Did something perfectly with nothing left to criticize." },
+            { word: "Mother", meaning: "Someone who serves excellence and nurtures their community." },
+            { word: "Purr", meaning: "Expression of approval or satisfaction." },
+            { word: "Giving nothing", meaning: "Lacking effort, energy, or quality." },
+            { word: "That's on period", meaning: "Emphasizing a statement with finality." },
+            { word: "The way I", meaning: "Expressing shock or emphasis about something." },
+            { word: "Not me", meaning: "Sarcastically admitting to doing something." }
+        ];
+
+        // Render Words
+        function renderWords(filteredWords = words) {
+            const wordGrid = document.getElementById('wordGrid');
+            wordGrid.innerHTML = filteredWords.map(item => `
+                <div class="word-card">
+                    <h3>${item.word}</h3>
+                    <p>${item.meaning}</p>
+                </div>
+            `).join('');
+        }
+
+        // Render Emojis
+        function renderEmojis(filteredEmojis = emojis) {
+            const emojiGrid = document.getElementById('emojiGrid');
+            emojiGrid.innerHTML = filteredEmojis.map(item => `
+                <div class="emoji-card">
+                    <div class="emoji">${item.emoji}</div>
+                    <h3>${item.name}</h3>
+                    <p>${item.meaning}</p>
+                </div>
+            `).join('');
+        }
+
+        // Flashcards
+        let currentCardIndex = 0;
+
+        function updateFlashcard() {
+            const card = flashcardData[currentCardIndex];
+            document.getElementById('flashcardWord').textContent = card.word;
+            document.getElementById('flashcardMeaning').textContent = card.meaning;
+            document.getElementById('currentCard').textContent = currentCardIndex + 1;
+            document.getElementById('totalCards').textContent = flashcardData.length;
+            
+            // Reset flip state
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
+
+        document.getElementById('flashcard').addEventListener('click', function() {
+            this.classList.toggle('flipped');
+        });
+
+        document.getElementById('prevCard').addEventListener('click', () => {
+            currentCardIndex = (currentCardIndex - 1 + flashcardData.length) % flashcardData.length;
+            updateFlashcard();
+        });
+
+        document.getElementById('nextCard').addEventListener('click', () => {
+            currentCardIndex = (currentCardIndex + 1) % flashcardData.length;
+            updateFlashcard();
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active button
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update active page
+                const pageName = this.getAttribute('data-page');
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(pageName).classList.add('active');
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchWords').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = words.filter(item => 
+                item.word.toLowerCase().includes(searchTerm) || 
+                item.meaning.toLowerCase().includes(searchTerm)
+            );
+            renderWords(filtered);
+        });
+
+        document.getElementById('searchEmojis').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = emojis.filter(item => 
+                item.name.toLowerCase().includes(searchTerm) || 
+                item.meaning.toLowerCase().includes(searchTerm)
+            );
+            renderEmojis(filtered);
+        });
+
+        // Initialize
+        renderWords();
+        renderEmojis();
+        updateFlashcard();
+    </script>
+</body>
+</html>
